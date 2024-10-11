@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  scrapy:
+    build: .
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/
+      - MONGO_DATABASE=goodreads_db
+      - PYTHONUNBUFFERED=1 # Đảm bảo log được hiển thị ngay lập tức
+    volumes:
+      - ./:/app
+      - ./output:/app/output
+    working_dir: /app
+    command: scrapy crawl goodreads_spider
+    networks:
+      - mynetwork
+
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  mongo_data:
